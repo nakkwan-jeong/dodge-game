@@ -2,19 +2,25 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
   <title>NEON DODGE : Survival</title>
   <style>
     :root {
       --bg1: #050816;
-      --bg2: #0b1228;
+      --bg2: #0a1022;
       --cyan: #53f3ff;
+      --cyan2: #59bfff;
       --pink: #ff4fd8;
+      --pink2: #ff77d9;
       --red: #ff4d6d;
       --yellow: #ffd166;
-      --white: #f4f7ff;
-      --glass: rgba(255,255,255,0.08);
-      --glass-border: rgba(255,255,255,0.12);
+      --white: #f5f8ff;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --shadow: rgba(0, 0, 0, 0.35);
     }
 
     * {
@@ -22,98 +28,127 @@
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none;
     }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       width: 100%;
       height: 100%;
-      background:
-        radial-gradient(circle at top, #0e1635 0%, #060a18 45%, #03050d 100%);
-      font-family: "Segoe UI", Arial, sans-serif;
+      overflow: hidden;
       color: var(--white);
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 50% 0%, #12204a 0%, #081124 36%, #030611 100%);
+      touch-action: manipulation; /* 버튼 터치 허용 */
     }
 
     canvas {
       display: block;
       width: 100vw;
       height: 100vh;
+      touch-action: none; /* 게임 조작은 캔버스에서만 막음 */
     }
 
     .hud {
       position: fixed;
-      top: 14px;
-      left: 14px;
-      right: 14px;
+      top: calc(env(safe-area-inset-top, 0px) + 12px);
+      left: 12px;
+      right: 12px;
+      z-index: 10;
       display: flex;
       justify-content: space-between;
-      align-items: stretch;
       gap: 10px;
-      z-index: 10;
       pointer-events: none;
+    }
+
+    .hud-left,
+    .hud-right {
+      display: flex;
+      gap: 10px;
     }
 
     .panel {
-      pointer-events: none;
-      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+      min-width: 106px;
+      padding: 11px 12px;
+      border-radius: 18px;
       border: 1px solid var(--glass-border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.05));
+      box-shadow:
+        0 10px 30px var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,0.08);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-radius: 18px;
-      padding: 12px 14px;
-      box-shadow:
-        0 10px 30px rgba(0,0,0,0.32),
-        inset 0 1px 0 rgba(255,255,255,0.06);
-      min-width: 120px;
     }
 
-    .title-mini {
-      font-size: 11px;
-      letter-spacing: 1.5px;
-      opacity: 0.75;
-      margin-bottom: 4px;
+    .mini {
+      opacity: 0.7;
+      font-size: 10px;
+      letter-spacing: 1.4px;
       text-transform: uppercase;
+      margin-bottom: 4px;
     }
 
     .big {
-      font-size: 22px;
-      font-weight: 800;
+      font-size: 20px;
+      font-weight: 900;
       line-height: 1.1;
-      text-shadow: 0 0 12px rgba(83,243,255,0.18);
+      text-shadow: 0 0 18px rgba(83,243,255,0.15);
     }
 
     .big.small {
-      font-size: 18px;
+      font-size: 16px;
     }
 
-    .leftGroup, .rightGroup {
-      display: flex;
-      gap: 10px;
-    }
-
-    .centerTop {
+    .top-center {
       position: fixed;
-      top: 14px;
+      top: calc(env(safe-area-inset-top, 0px) + 12px);
       left: 50%;
       transform: translateX(-50%);
       z-index: 10;
       pointer-events: none;
     }
 
-    .levelBadge {
-      background: linear-gradient(90deg, rgba(83,243,255,0.18), rgba(255,79,216,0.16));
-      border: 1px solid rgba(255,255,255,0.14);
-      padding: 10px 18px;
+    .badge {
+      padding: 10px 16px;
       border-radius: 999px;
-      font-size: 14px;
-      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(90deg, rgba(83,243,255,0.18), rgba(255,79,216,0.15));
+      box-shadow: 0 10px 26px rgba(0,0,0,0.28);
+      font-size: 13px;
+      font-weight: 900;
       letter-spacing: 1px;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+    }
+
+    .hint {
+      position: fixed;
+      left: 50%;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+      transform: translateX(-50%);
+      z-index: 10;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-size: 12px;
+      opacity: 0.92;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .flash {
+      position: fixed;
+      inset: 0;
+      z-index: 18;
+      pointer-events: none;
+      background: rgba(255,77,109,0);
+      transition: background 0.12s ease;
     }
 
     .overlay {
@@ -123,17 +158,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 18px;
       background:
-        radial-gradient(circle at center, rgba(18,30,69,0.45), rgba(3,5,13,0.85));
+        radial-gradient(circle at center, rgba(16,28,66,0.42), rgba(3,5,13,0.88));
     }
 
     .card {
-      width: min(92vw, 460px);
+      width: min(94vw, 460px);
       border-radius: 28px;
-      padding: 24px 22px 20px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+      padding: 24px 20px 20px;
       border: 1px solid rgba(255,255,255,0.14);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       box-shadow:
@@ -144,144 +180,149 @@
 
     .logo {
       font-size: clamp(28px, 6vw, 42px);
-      font-weight: 900;
-      letter-spacing: 1px;
+      font-weight: 1000;
       margin-bottom: 8px;
       text-shadow:
-        0 0 18px rgba(83,243,255,0.26),
+        0 0 18px rgba(83,243,255,0.22),
         0 0 28px rgba(255,79,216,0.12);
     }
 
-    .logo .cyan { color: var(--cyan); }
-    .logo .pink { color: var(--pink); }
+    .cyan { color: var(--cyan); }
+    .pink { color: var(--pink); }
 
     .subtitle {
-      opacity: 0.8;
-      line-height: 1.55;
       font-size: 14px;
+      line-height: 1.55;
+      opacity: 0.86;
       margin-bottom: 18px;
     }
 
-    .infoList {
+    .info {
       text-align: left;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
       padding: 14px 16px;
-      margin-bottom: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
       font-size: 14px;
       line-height: 1.7;
+      margin-bottom: 16px;
     }
 
-    .infoList b {
+    .info b {
       color: var(--cyan);
     }
 
-    .btnWrap {
+    .btns {
       display: flex;
-      gap: 10px;
       flex-direction: column;
+      gap: 10px;
     }
 
-    .btn {
+    button {
       appearance: none;
+      -webkit-appearance: none;
       border: 0;
       outline: 0;
       cursor: pointer;
+      width: 100%;
       border-radius: 16px;
       padding: 16px 18px;
       font-size: 17px;
       font-weight: 900;
-      letter-spacing: 0.3px;
-      transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+      letter-spacing: 0.2px;
+      touch-action: manipulation; /* 버튼 터치 보장 */
+      pointer-events: auto;
+      transition:
+        transform 0.08s ease,
+        filter 0.12s ease,
+        box-shadow 0.12s ease;
     }
 
-    .btn:active {
-      transform: scale(0.98);
+    button:active {
+      transform: scale(0.985);
+      filter: brightness(0.98);
     }
 
-    .btn.primary {
-      background: linear-gradient(90deg, var(--cyan), #5ad0ff);
-      color: #051320;
-      box-shadow: 0 10px 30px rgba(83,243,255,0.24);
+    .btn-primary {
+      color: #061522;
+      background: linear-gradient(90deg, var(--cyan), var(--cyan2));
+      box-shadow: 0 10px 34px rgba(83,243,255,0.22);
     }
 
-    .btn.secondary {
-      background: linear-gradient(90deg, #1e2744, #12192f);
+    .btn-secondary {
       color: var(--white);
+      background: linear-gradient(90deg, #1a2340, #111830);
       border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
     }
 
     .result {
+      text-align: left;
       font-size: 15px;
       line-height: 1.8;
-      text-align: left;
-      background: rgba(255,255,255,0.05);
       border-radius: 18px;
-      padding: 14px 16px;
-      margin: 16px 0 18px;
       border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+      padding: 14px 16px;
+      margin: 14px 0 18px;
     }
 
     .result strong {
       color: var(--yellow);
     }
 
-    .hint {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      opacity: 0.9;
-      pointer-events: none;
-    }
-
-    .flash {
-      position: fixed;
-      inset: 0;
-      background: rgba(255, 77, 109, 0);
-      pointer-events: none;
-      z-index: 15;
-      transition: background 0.15s ease;
-    }
-
     @media (max-width: 640px) {
       .hud {
-        top: 10px;
+        top: calc(env(safe-area-inset-top, 0px) + 10px);
         left: 10px;
         right: 10px;
         gap: 8px;
       }
 
+      .hud-left,
+      .hud-right {
+        gap: 8px;
+      }
+
       .panel {
-        padding: 10px 12px;
         min-width: auto;
+        padding: 10px 11px;
       }
 
       .big {
-        font-size: 18px;
+        font-size: 17px;
       }
 
       .big.small {
-        font-size: 16px;
+        font-size: 14px;
       }
 
-      .title-mini {
-        font-size: 10px;
+      .mini {
+        font-size: 9px;
+      }
+
+      .badge {
+        font-size: 12px;
+        padding: 9px 14px;
       }
 
       .hint {
-        bottom: 12px;
-        font-size: 12px;
+        font-size: 11px;
         padding: 9px 12px;
+      }
+
+      .card {
+        padding: 22px 18px 18px;
+      }
+
+      .subtitle,
+      .info {
+        font-size: 13px;
+      }
+
+      button {
+        font-size: 16px;
+        padding: 15px 16px;
       }
     }
   </style>
@@ -290,53 +331,53 @@
   <canvas id="game"></canvas>
 
   <div class="hud">
-    <div class="leftGroup">
+    <div class="hud-left">
       <div class="panel">
-        <div class="title-mini">SURVIVAL</div>
+        <div class="mini">Survival</div>
         <div class="big" id="timeText">0.00s</div>
       </div>
       <div class="panel">
-        <div class="title-mini">BEST</div>
+        <div class="mini">Best</div>
         <div class="big small" id="bestText">0.00s</div>
       </div>
     </div>
 
-    <div class="rightGroup">
+    <div class="hud-right">
       <div class="panel">
-        <div class="title-mini">SPEED</div>
+        <div class="mini">Speed</div>
         <div class="big small" id="speedText">1.0x</div>
       </div>
       <div class="panel">
-        <div class="title-mini">HAZARD</div>
+        <div class="mini">Hazard</div>
         <div class="big small" id="hazardText">LOW</div>
       </div>
     </div>
   </div>
 
-  <div class="centerTop">
-    <div class="levelBadge" id="levelText">LEVEL 1</div>
+  <div class="top-center">
+    <div class="badge" id="levelText">LEVEL 1</div>
   </div>
 
-  <div class="hint" id="hintText">손가락으로 플레이어를 끌어서 생존하세요</div>
+  <div class="hint" id="hintText">플레이어를 손가락으로 끌어서 생존하세요</div>
   <div class="flash" id="flash"></div>
 
   <div class="overlay" id="startOverlay">
     <div class="card">
       <div class="logo"><span class="cyan">NEON</span> <span class="pink">DODGE</span></div>
       <div class="subtitle">
-        피지컬로 버티는 모바일 생존 게임<br>
-        친구들과 <b>생존 시간</b>으로 바로 승부 보세요
+        모바일 피지컬 생존 게임<br />
+        친구들이랑 <b>생존 시간</b>으로 바로 승부 보세요
       </div>
 
-      <div class="infoList">
-        • <b>조작</b>: 플레이어를 손가락으로 직접 드래그<br>
-        • <b>목표</b>: 적, 추격 구체, 레이저를 피하며 최대한 오래 생존<br>
-        • <b>난이도</b>: 시간이 갈수록 속도와 개수가 빠르게 증가
+      <div class="info">
+        • <b>조작</b>: 플레이어를 손가락으로 드래그<br />
+        • <b>목표</b>: 낙하체, 추적 구체, 레이저를 피해 최대한 오래 버티기<br />
+        • <b>난이도</b>: 시간이 갈수록 속도/개수/압박감 급상승
       </div>
 
-      <div class="btnWrap">
-        <button class="btn primary" id="startBtn">게임 시작</button>
-        <button class="btn secondary" id="howBtn">조작 팁 보기</button>
+      <div class="btns">
+        <button class="btn-primary" id="startBtn" type="button">게임 시작</button>
+        <button class="btn-secondary" id="howBtn" type="button">조작 팁 보기</button>
       </div>
     </div>
   </div>
@@ -349,14 +390,17 @@
         생존 시간: <strong>0.00s</strong>
       </div>
 
-      <div class="btnWrap">
-        <button class="btn primary" id="restartBtn">다시 도전</button>
-        <button class="btn secondary" id="closeBtn">결과 닫기</button>
+      <div class="btns">
+        <button class="btn-primary" id="restartBtn" type="button">다시 도전</button>
+        <button class="btn-secondary" id="closeBtn" type="button">결과 닫기</button>
       </div>
     </div>
   </div>
 
   <script>
+    // =========================
+    // 기본 객체
+    // =========================
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
 
@@ -371,12 +415,15 @@
     const startOverlay = document.getElementById("startOverlay");
     const gameOverOverlay = document.getElementById("gameOverOverlay");
     const resultText = document.getElementById("resultText");
+
     const startBtn = document.getElementById("startBtn");
     const howBtn = document.getElementById("howBtn");
     const restartBtn = document.getElementById("restartBtn");
     const closeBtn = document.getElementById("closeBtn");
 
-    // ====== 캔버스 리사이즈 ======
+    // =========================
+    // 캔버스 설정
+    // =========================
     let DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     function resizeCanvas() {
       DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
@@ -389,158 +436,268 @@
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    // ====== 게임 상태 ======
+    // =========================
+    // 오디오 (타격감 강화)
+    // =========================
+    let audioCtx = null;
+    let audioUnlocked = false;
+
+    function unlockAudio() {
+      if (audioUnlocked) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+        audioUnlocked = true;
+      } catch (e) {
+        // 오디오가 안 돼도 게임은 작동
+      }
+    }
+
+    function playTone(freq = 440, duration = 0.08, type = "sine", volume = 0.02, slideTo = null) {
+      if (!audioCtx || !audioUnlocked) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      if (slideTo) {
+        osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+      }
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + duration + 0.02);
+    }
+
+    function soundStart() {
+      playTone(440, 0.07, "triangle", 0.018, 660);
+      setTimeout(() => playTone(660, 0.08, "triangle", 0.02, 880), 60);
+    }
+
+    function soundLaserWarn() {
+      playTone(260, 0.08, "sawtooth", 0.02, 220);
+    }
+
+    function soundLaserFire() {
+      playTone(880, 0.12, "square", 0.028, 220);
+    }
+
+    function soundGameOver() {
+      playTone(320, 0.16, "sawtooth", 0.03, 180);
+      setTimeout(() => playTone(190, 0.2, "square", 0.028, 120), 90);
+    }
+
+    // =========================
+    // 진동
+    // =========================
+    function vibrate(pattern) {
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    }
+
+    // =========================
+    // 게임 상태
+    // =========================
     let gameRunning = false;
     let gameOver = false;
     let startTime = 0;
     let elapsed = 0;
     let best = Number(localStorage.getItem("neon_dodge_best") || 0);
+    bestText.textContent = best.toFixed(2) + "s";
+
+    let screenShake = 0;
+    let screenShakePower = 0;
 
     const state = {
       difficulty: 1,
-      speedMultiplier: 1,
       level: 1,
+      speedMultiplier: 1,
       lastTime: 0,
-      spawnTimerA: 0,
-      spawnTimerB: 0,
-      spawnTimerC: 0,
+      spawnMeteorTimer: 0,
+      spawnDartTimer: 0,
+      spawnChaserTimer: 0,
       laserTimer: 0,
+      stars: [],
       particles: [],
       meteors: [],
       darts: [],
       chasers: [],
-      lasers: [],
-      stars: []
+      lasers: []
     };
 
-    bestText.textContent = best.toFixed(2) + "s";
-
-    // ====== 플레이어 ======
     const player = {
       x: 0,
       y: 0,
+      targetX: 0,
+      targetY: 0,
       r: 12,
-      glow: 18,
-      color: "#53f3ff",
+      glow: 16,
       alive: true
     };
 
     function resetPlayer() {
       player.x = window.innerWidth / 2;
       player.y = window.innerHeight * 0.78;
+      player.targetX = player.x;
+      player.targetY = player.y;
       player.alive = true;
     }
 
-    // ====== 입력 ======
-    let dragging = false;
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
-    let hintHidden = false;
-
-    function getPos(e) {
-      const t = e.touches ? e.touches[0] : e;
-      return { x: t.clientX, y: t.clientY };
-    }
-
-    function pointerDown(e) {
-      if (!gameRunning) return;
-      const p = getPos(e);
-      const dx = p.x - player.x;
-      const dy = p.y - player.y;
-      const dist = Math.hypot(dx, dy);
-
-      // 플레이어 근처를 터치한 경우 드래그 시작
-      if (dist < 80) {
-        dragging = true;
-        dragOffsetX = dx;
-        dragOffsetY = dy;
-      } else {
-        // 멀리 눌러도 빠르게 이동 가능하도록 즉시 따라감
-        dragging = true;
-        dragOffsetX = 0;
-        dragOffsetY = 0;
-        player.x = p.x;
-        player.y = p.y;
-      }
-
-      if (!hintHidden) {
-        hintText.style.opacity = "0";
-        hintHidden = true;
-      }
-      e.preventDefault();
-    }
-
-    function pointerMove(e) {
-      if (!gameRunning || !dragging) return;
-      const p = getPos(e);
-      player.x = p.x - dragOffsetX;
-      player.y = p.y - dragOffsetY;
-      clampPlayer();
-      e.preventDefault();
-    }
-
-    function pointerUp(e) {
-      dragging = false;
-      if (e) e.preventDefault();
-    }
-
-    window.addEventListener("touchstart", pointerDown, { passive: false });
-    window.addEventListener("touchmove", pointerMove, { passive: false });
-    window.addEventListener("touchend", pointerUp, { passive: false });
-
-    // 데스크톱도 대응
-    window.addEventListener("mousedown", pointerDown);
-    window.addEventListener("mousemove", pointerMove);
-    window.addEventListener("mouseup", pointerUp);
-
-    function clampPlayer() {
-      const pad = 6;
-      player.x = Math.max(player.r + pad, Math.min(window.innerWidth - player.r - pad, player.x));
-      player.y = Math.max(player.r + 64, Math.min(window.innerHeight - player.r - 20, player.y));
-    }
-
-    // ====== 배경 별 ======
     function initStars() {
       state.stars = [];
-      const count = Math.floor((window.innerWidth * window.innerHeight) / 9000);
+      const count = Math.floor((window.innerWidth * window.innerHeight) / 8500);
       for (let i = 0; i < count; i++) {
         state.stars.push({
           x: Math.random() * window.innerWidth,
           y: Math.random() * window.innerHeight,
-          r: Math.random() * 1.8 + 0.4,
-          a: Math.random() * 0.6 + 0.2,
-          s: Math.random() * 0.2 + 0.05
+          r: Math.random() * 1.8 + 0.5,
+          a: Math.random() * 0.6 + 0.15,
+          s: Math.random() * 0.18 + 0.04
         });
       }
     }
     initStars();
     window.addEventListener("resize", initStars);
 
-    // ====== 파티클 ======
-    function burst(x, y, color, amount = 18) {
+    // =========================
+    // 입력 (손가락 조작 부드럽게)
+    // =========================
+    let dragging = false;
+    let hintHidden = false;
+
+    function getPointerPos(e) {
+      if (e.touches && e.touches.length > 0) {
+        return {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY
+        };
+      }
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        return {
+          x: e.changedTouches[0].clientX,
+          y: e.changedTouches[0].clientY
+        };
+      }
+      return {
+        x: e.clientX,
+        y: e.clientY
+      };
+    }
+
+    function setPlayerTarget(x, y) {
+      const pad = 8;
+      player.targetX = Math.max(player.r + pad, Math.min(window.innerWidth - player.r - pad, x));
+      player.targetY = Math.max(player.r + 60, Math.min(window.innerHeight - player.r - 18, y));
+    }
+
+    function onGameTouchStart(e) {
+      if (!gameRunning) return;
+      const p = getPointerPos(e);
+      dragging = true;
+      setPlayerTarget(p.x, p.y);
+
+      if (!hintHidden) {
+        hintText.style.opacity = "0";
+        hintHidden = true;
+      }
+
+      e.preventDefault();
+    }
+
+    function onGameTouchMove(e) {
+      if (!gameRunning || !dragging) return;
+      const p = getPointerPos(e);
+      setPlayerTarget(p.x, p.y);
+      e.preventDefault();
+    }
+
+    function onGameTouchEnd(e) {
+      dragging = false;
+      if (e) e.preventDefault();
+    }
+
+    // 오직 캔버스에만 게임 입력 연결
+    canvas.addEventListener("touchstart", onGameTouchStart, { passive: false });
+    canvas.addEventListener("touchmove", onGameTouchMove, { passive: false });
+    canvas.addEventListener("touchend", onGameTouchEnd, { passive: false });
+    canvas.addEventListener("mousedown", onGameTouchStart);
+    canvas.addEventListener("mousemove", onGameTouchMove);
+    window.addEventListener("mouseup", onGameTouchEnd);
+
+    // =========================
+    // 버튼 입력 보강 (모바일)
+    // =========================
+    function bindTap(el, handler) {
+      el.addEventListener("click", handler);
+      el.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        handler(e);
+      }, { passive: false });
+    }
+
+    // =========================
+    // 유틸
+    // =========================
+    function burst(x, y, color, amount = 18, power = 1) {
       for (let i = 0; i < amount; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 2.8 + 0.5;
+        const speed = (Math.random() * 2.7 + 0.6) * power;
         state.particles.push({
-          x, y,
+          x,
+          y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          life: Math.random() * 22 + 22,
-          size: Math.random() * 3 + 1,
+          life: Math.random() * 20 + 22,
+          size: Math.random() * 3 + 1.2,
           color
         });
       }
     }
 
-    // ====== 적 생성 ======
+    function hitFlash(color = "rgba(255,77,109,0.26)", ms = 120) {
+      flashEl.style.background = color;
+      setTimeout(() => {
+        flashEl.style.background = "rgba(255,77,109,0)";
+      }, ms);
+    }
+
+    function addShake(power = 10) {
+      screenShake = 10;
+      screenShakePower = Math.max(screenShakePower, power);
+    }
+
+    function circleHit(ax, ay, ar, bx, by, br) {
+      return Math.hypot(ax - bx, ay - by) < ar + br;
+    }
+
+    function rectCircleHit(rx, ry, rw, rh, cx, cy, cr) {
+      const testX = Math.max(rx, Math.min(cx, rx + rw));
+      const testY = Math.max(ry, Math.min(cy, ry + rh));
+      const dx = cx - testX;
+      const dy = cy - testY;
+      return dx * dx + dy * dy < cr * cr;
+    }
+
+    // =========================
+    // 적 생성
+    // =========================
     function spawnMeteor() {
-      const size = Math.random() * 20 + 14;
+      const r = Math.random() * 20 + 14;
       state.meteors.push({
-        x: Math.random() * (window.innerWidth - size * 2) + size,
-        y: -size - 20,
-        r: size,
-        vy: (Math.random() * 2.2 + 2.6) * state.speedMultiplier,
-        vx: (Math.random() * 1.3 - 0.65) * state.speedMultiplier,
+        x: Math.random() * (window.innerWidth - r * 2) + r,
+        y: -r - 18,
+        r,
+        vy: (Math.random() * 2.2 + 2.7) * state.speedMultiplier,
+        vx: (Math.random() * 1.2 - 0.6) * state.speedMultiplier,
         rot: Math.random() * Math.PI * 2,
         spin: Math.random() * 0.08 - 0.04
       });
@@ -548,14 +705,14 @@
 
     function spawnDart() {
       const fromLeft = Math.random() < 0.5;
-      const h = Math.random() * 14 + 10;
       const w = Math.random() * 34 + 36;
+      const h = Math.random() * 13 + 11;
       state.darts.push({
-        x: fromLeft ? -w - 20 : window.innerWidth + w + 20,
-        y: Math.random() * (window.innerHeight - 220) + 110,
+        x: fromLeft ? -w - 30 : window.innerWidth + w + 30,
+        y: Math.random() * (window.innerHeight - 220) + 100,
         w,
         h,
-        vx: (fromLeft ? 1 : -1) * (Math.random() * 3.5 + 5.5) * state.speedMultiplier,
+        vx: (fromLeft ? 1 : -1) * (Math.random() * 3.2 + 5.8) * state.speedMultiplier,
         color: "#ff4fd8"
       });
     }
@@ -569,48 +726,50 @@
       if (edge === 3) { x = -20; y = Math.random() * window.innerHeight; }
 
       state.chasers.push({
-        x, y,
+        x,
+        y,
         r: Math.random() * 10 + 10,
-        speed: (Math.random() * 1.3 + 1.5) * state.speedMultiplier,
+        speed: (Math.random() * 1.15 + 1.55) * state.speedMultiplier,
         color: "#ff6b6b"
       });
     }
 
     function spawnLaser() {
       const vertical = Math.random() < 0.5;
-      const warningTime = 900 - Math.min(450, elapsed * 5);
+      const warningTime = Math.max(360, 900 - elapsed * 6);
       const thickness = Math.random() * 12 + 10;
 
       if (vertical) {
-        const x = Math.random() * (window.innerWidth - 80) + 40;
         state.lasers.push({
           vertical: true,
-          x,
+          x: Math.random() * (window.innerWidth - 80) + 40,
           y: 0,
           thickness,
           warning: true,
           timer: 0,
           warningTime,
-          activeTime: 480,
-          done: false
+          activeTime: 460
         });
       } else {
-        const y = Math.random() * (window.innerHeight - 220) + 90;
         state.lasers.push({
           vertical: false,
           x: 0,
-          y,
+          y: Math.random() * (window.innerHeight - 210) + 90,
           thickness,
           warning: true,
           timer: 0,
           warningTime,
-          activeTime: 480,
-          done: false
+          activeTime: 460
         });
       }
+
+      soundLaserWarn();
+      vibrate(18);
     }
 
-    // ====== 난이도 로직 ======
+    // =========================
+    // 난이도
+    // =========================
     function updateDifficulty() {
       state.level = 1 + Math.floor(elapsed / 8);
       state.speedMultiplier = 1 + elapsed * 0.035;
@@ -621,36 +780,30 @@
       else if (elapsed < 48) state.difficulty = 4;
       else state.difficulty = 5;
 
-      speedText.textContent = state.speedMultiplier.toFixed(1) + "x";
-      levelText.textContent = "LEVEL " + state.level;
-
       const hazardNames = ["LOW", "ELEVATED", "HIGH", "EXTREME", "INSANE"];
-      hazardText.textContent = hazardNames[state.difficulty - 1];
+      speedText.textContent = state.speedMultiplier.toFixed(1) + "x";
+      dangerText = hazardNames[state.difficulty - 1];
+      hazardText.textContent = dangerText;
+      levelText.textContent = "LEVEL " + state.level;
     }
+    let dangerText = "LOW";
 
-    // ====== 충돌 ======
-    function circleHit(ax, ay, ar, bx, by, br) {
-      return Math.hypot(ax - bx, ay - by) < ar + br;
-    }
-
-    function rectCircleHit(rx, ry, rw, rh, cx, cy, cr) {
-      const testX = Math.max(rx, Math.min(cx, rx + rw));
-      const testY = Math.max(ry, Math.min(cy, ry + rh));
-      const distX = cx - testX;
-      const distY = cy - testY;
-      return distX * distX + distY * distY < cr * cr;
-    }
-
+    // =========================
+    // 게임 종료
+    // =========================
     function killPlayer(reason = "") {
       if (!player.alive) return;
+
       player.alive = false;
       gameRunning = false;
       gameOver = true;
       dragging = false;
 
-      burst(player.x, player.y, "#53f3ff", 38);
-      flashEl.style.background = "rgba(255,77,109,0.32)";
-      setTimeout(() => flashEl.style.background = "rgba(255,77,109,0)", 160);
+      burst(player.x, player.y, "#53f3ff", 42, 1.4);
+      addShake(22);
+      hitFlash("rgba(255,77,109,0.34)", 140);
+      soundGameOver();
+      vibrate([30, 40, 50]);
 
       if (elapsed > best) {
         best = elapsed;
@@ -662,7 +815,7 @@
         생존 시간: <strong>${elapsed.toFixed(2)}s</strong><br>
         최고 기록: <strong>${best.toFixed(2)}s</strong><br>
         도달 레벨: <strong>${state.level}</strong><br>
-        위험도: <strong>${hazardText.textContent}</strong>
+        위험도: <strong>${dangerText}</strong>
       `;
 
       setTimeout(() => {
@@ -670,146 +823,163 @@
       }, 260);
     }
 
-    // ====== 업데이트 ======
-    function update(dt) {
-      if (!gameRunning) return;
+    // =========================
+    // 업데이트
+    // =========================
+    function update(dt, now) {
+      if (gameRunning) {
+        elapsed = (now - startTime) / 1000;
+        timeText.textContent = elapsed.toFixed(2) + "s";
+        updateDifficulty();
 
-      elapsed = (performance.now() - startTime) / 1000;
-      timeText.textContent = elapsed.toFixed(2) + "s";
-      updateDifficulty();
+        // 플레이어 부드러운 이동 (핵심)
+        const smoothing = Math.min(0.22, 0.10 + elapsed * 0.0015);
+        player.x += (player.targetX - player.x) * smoothing;
+        player.y += (player.targetY - player.y) * smoothing;
 
-      // 스폰 주기
-      state.spawnTimerA += dt;
-      state.spawnTimerB += dt;
-      state.spawnTimerC += dt;
-      state.laserTimer += dt;
-
-      const meteorGap = Math.max(260, 760 - elapsed * 16);
-      const dartGap = Math.max(500, 1550 - elapsed * 18);
-      const chaserGap = Math.max(900, 2600 - elapsed * 22);
-      const laserGap = Math.max(2200, 5200 - elapsed * 35);
-
-      if (state.spawnTimerA > meteorGap) {
-        state.spawnTimerA = 0;
-        spawnMeteor();
-        if (state.difficulty >= 3 && Math.random() < 0.36) spawnMeteor();
-      }
-
-      if (state.spawnTimerB > dartGap) {
-        state.spawnTimerB = 0;
-        if (state.difficulty >= 2) spawnDart();
-      }
-
-      if (state.spawnTimerC > chaserGap) {
-        state.spawnTimerC = 0;
-        if (state.difficulty >= 3) spawnChaser();
-      }
-
-      if (state.laserTimer > laserGap) {
-        state.laserTimer = 0;
-        if (state.difficulty >= 2) spawnLaser();
-      }
-
-      // 별
-      for (const s of state.stars) {
-        s.y += s.s * state.speedMultiplier * 0.6;
-        if (s.y > window.innerHeight) {
-          s.y = -2;
-          s.x = Math.random() * window.innerWidth;
-        }
-      }
-
-      // 파티클
-      for (let i = state.particles.length - 1; i >= 0; i--) {
-        const p = state.particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vx *= 0.985;
-        p.vy *= 0.985;
-        p.life -= dt * 0.06;
-        if (p.life <= 0) state.particles.splice(i, 1);
-      }
-
-      // 메테오
-      for (let i = state.meteors.length - 1; i >= 0; i--) {
-        const m = state.meteors[i];
-        m.x += m.vx;
-        m.y += m.vy;
-        m.rot += m.spin;
-
-        if (m.y - m.r > window.innerHeight + 30 || m.x < -80 || m.x > window.innerWidth + 80) {
-          state.meteors.splice(i, 1);
-          continue;
+        // 별 이동
+        for (const s of state.stars) {
+          s.y += s.s * state.speedMultiplier * 0.65;
+          if (s.y > window.innerHeight) {
+            s.y = -2;
+            s.x = Math.random() * window.innerWidth;
+          }
         }
 
-        if (circleHit(m.x, m.y, m.r * 0.9, player.x, player.y, player.r)) {
-          killPlayer("meteor");
-        }
-      }
+        // 스폰 타이머
+        state.spawnMeteorTimer += dt;
+        state.spawnDartTimer += dt;
+        state.spawnChaserTimer += dt;
+        state.laserTimer += dt;
 
-      // 다트
-      for (let i = state.darts.length - 1; i >= 0; i--) {
-        const d = state.darts[i];
-        d.x += d.vx;
+        const meteorGap = Math.max(250, 760 - elapsed * 16);
+        const dartGap = Math.max(460, 1500 - elapsed * 18);
+        const chaserGap = Math.max(850, 2600 - elapsed * 24);
+        const laserGap = Math.max(2100, 5200 - elapsed * 38);
 
-        if (d.x < -200 || d.x > window.innerWidth + 200) {
-          state.darts.splice(i, 1);
-          continue;
-        }
-
-        if (rectCircleHit(d.x - d.w / 2, d.y - d.h / 2, d.w, d.h, player.x, player.y, player.r)) {
-          killPlayer("dart");
-        }
-      }
-
-      // 체이서
-      for (let i = state.chasers.length - 1; i >= 0; i--) {
-        const c = state.chasers[i];
-        const dx = player.x - c.x;
-        const dy = player.y - c.y;
-        const dist = Math.hypot(dx, dy) || 1;
-        c.x += (dx / dist) * c.speed;
-        c.y += (dy / dist) * c.speed;
-
-        if (circleHit(c.x, c.y, c.r, player.x, player.y, player.r)) {
-          killPlayer("chaser");
-        }
-      }
-
-      // 레이저
-      for (let i = state.lasers.length - 1; i >= 0; i--) {
-        const l = state.lasers[i];
-        l.timer += dt;
-
-        if (l.warning && l.timer >= l.warningTime) {
-          l.warning = false;
-          l.timer = 0;
-          flashEl.style.background = "rgba(255,255,255,0.08)";
-          setTimeout(() => flashEl.style.background = "rgba(255,77,109,0)", 70);
-        } else if (!l.warning && l.timer >= l.activeTime) {
-          state.lasers.splice(i, 1);
-          continue;
+        if (state.spawnMeteorTimer > meteorGap) {
+          state.spawnMeteorTimer = 0;
+          spawnMeteor();
+          if (state.difficulty >= 3 && Math.random() < 0.38) spawnMeteor();
         }
 
-        // 레이저 활성시 충돌
-        if (!l.warning) {
-          if (l.vertical) {
-            if (Math.abs(player.x - l.x) < l.thickness / 2 + player.r) {
-              killPlayer("laser");
-            }
-          } else {
-            if (Math.abs(player.y - l.y) < l.thickness / 2 + player.r) {
-              killPlayer("laser");
+        if (state.spawnDartTimer > dartGap && state.difficulty >= 2) {
+          state.spawnDartTimer = 0;
+          spawnDart();
+        }
+
+        if (state.spawnChaserTimer > chaserGap && state.difficulty >= 3) {
+          state.spawnChaserTimer = 0;
+          spawnChaser();
+        }
+
+        if (state.laserTimer > laserGap && state.difficulty >= 2) {
+          state.laserTimer = 0;
+          spawnLaser();
+        }
+
+        // 파티클
+        for (let i = state.particles.length - 1; i >= 0; i--) {
+          const p = state.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.985;
+          p.vy *= 0.985;
+          p.life -= dt * 0.06;
+          if (p.life <= 0) state.particles.splice(i, 1);
+        }
+
+        // 메테오
+        for (let i = state.meteors.length - 1; i >= 0; i--) {
+          const m = state.meteors[i];
+          m.x += m.vx;
+          m.y += m.vy;
+          m.rot += m.spin;
+
+          if (m.y - m.r > window.innerHeight + 30 || m.x < -80 || m.x > window.innerWidth + 80) {
+            state.meteors.splice(i, 1);
+            continue;
+          }
+
+          if (circleHit(m.x, m.y, m.r * 0.9, player.x, player.y, player.r)) {
+            killPlayer("meteor");
+          }
+        }
+
+        // 다트
+        for (let i = state.darts.length - 1; i >= 0; i--) {
+          const d = state.darts[i];
+          d.x += d.vx;
+
+          if (d.x < -200 || d.x > window.innerWidth + 200) {
+            state.darts.splice(i, 1);
+            continue;
+          }
+
+          if (rectCircleHit(d.x - d.w / 2, d.y - d.h / 2, d.w, d.h, player.x, player.y, player.r)) {
+            killPlayer("dart");
+          }
+        }
+
+        // 체이서
+        for (let i = state.chasers.length - 1; i >= 0; i--) {
+          const c = state.chasers[i];
+          const dx = player.x - c.x;
+          const dy = player.y - c.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          c.x += (dx / dist) * c.speed;
+          c.y += (dy / dist) * c.speed;
+
+          if (circleHit(c.x, c.y, c.r, player.x, player.y, player.r)) {
+            killPlayer("chaser");
+          }
+        }
+
+        // 레이저
+        for (let i = state.lasers.length - 1; i >= 0; i--) {
+          const l = state.lasers[i];
+          l.timer += dt;
+
+          if (l.warning && l.timer >= l.warningTime) {
+            l.warning = false;
+            l.timer = 0;
+            hitFlash("rgba(255,255,255,0.08)", 70);
+            soundLaserFire();
+            vibrate(28);
+            addShake(8);
+          } else if (!l.warning && l.timer >= l.activeTime) {
+            state.lasers.splice(i, 1);
+            continue;
+          }
+
+          if (!l.warning) {
+            if (l.vertical) {
+              if (Math.abs(player.x - l.x) < l.thickness / 2 + player.r) {
+                killPlayer("laser");
+              }
+            } else {
+              if (Math.abs(player.y - l.y) < l.thickness / 2 + player.r) {
+                killPlayer("laser");
+              }
             }
           }
         }
       }
+
+      // 화면 흔들림 감소
+      if (screenShake > 0) {
+        screenShake -= dt * 0.035;
+        if (screenShake < 0) screenShake = 0;
+      }
+      screenShakePower *= 0.92;
     }
 
-    // ====== 그리기 ======
+    // =========================
+    // 렌더링
+    // =========================
     function drawBackground() {
-      // 그리드
       ctx.save();
+      // 그리드
       ctx.globalAlpha = 0.06;
       ctx.strokeStyle = "#7aa8ff";
       ctx.lineWidth = 1;
@@ -833,7 +1003,7 @@
       for (const s of state.stars) {
         ctx.save();
         ctx.globalAlpha = s.a;
-        ctx.fillStyle = "#cce9ff";
+        ctx.fillStyle = "#d5ecff";
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
         ctx.fill();
@@ -844,29 +1014,29 @@
     function drawPlayer() {
       ctx.save();
 
-      // 바깥 글로우
-      const grad = ctx.createRadialGradient(player.x, player.y, 2, player.x, player.y, player.glow + player.r);
-      grad.addColorStop(0, "rgba(83,243,255,0.55)");
-      grad.addColorStop(0.45, "rgba(83,243,255,0.20)");
-      grad.addColorStop(1, "rgba(83,243,255,0)");
-      ctx.fillStyle = grad;
+      const pulse = 1 + Math.sin(performance.now() * 0.008) * 0.04;
+      const r = player.r * pulse;
+
+      const g = ctx.createRadialGradient(player.x, player.y, 2, player.x, player.y, r + player.glow + 6);
+      g.addColorStop(0, "rgba(83,243,255,0.62)");
+      g.addColorStop(0.45, "rgba(83,243,255,0.20)");
+      g.addColorStop(1, "rgba(83,243,255,0)");
+      ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(player.x, player.y, player.r + player.glow, 0, Math.PI * 2);
+      ctx.arc(player.x, player.y, r + player.glow + 6, 0, Math.PI * 2);
       ctx.fill();
 
-      // 몸체
       ctx.shadowColor = "#53f3ff";
-      ctx.shadowBlur = 16;
+      ctx.shadowBlur = 18;
       ctx.fillStyle = "#53f3ff";
       ctx.beginPath();
-      ctx.arc(player.x, player.y, player.r, 0, Math.PI * 2);
+      ctx.arc(player.x, player.y, r, 0, Math.PI * 2);
       ctx.fill();
 
-      // 코어
       ctx.shadowBlur = 0;
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
-      ctx.arc(player.x - 2, player.y - 2, player.r * 0.35, 0, Math.PI * 2);
+      ctx.arc(player.x - 2, player.y - 2, r * 0.34, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.restore();
@@ -879,22 +1049,24 @@
         ctx.rotate(m.rot);
 
         const grad = ctx.createRadialGradient(0, 0, 2, 0, 0, m.r);
-        grad.addColorStop(0, "rgba(255,209,102,0.95)");
-        grad.addColorStop(0.35, "rgba(255,117,24,0.92)");
-        grad.addColorStop(1, "rgba(255,77,109,0.88)");
+        grad.addColorStop(0, "rgba(255,209,102,0.98)");
+        grad.addColorStop(0.34, "rgba(255,117,24,0.95)");
+        grad.addColorStop(1, "rgba(255,77,109,0.92)");
 
         ctx.shadowColor = "#ff7b54";
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = 15;
         ctx.fillStyle = grad;
+
         ctx.beginPath();
         ctx.moveTo(0, -m.r);
         for (let i = 1; i < 8; i++) {
           const ang = i * Math.PI * 2 / 8;
-          const rr = m.r * (0.78 + Math.random() * 0.24);
+          const rr = m.r * (0.8 + Math.sin(i + m.rot * 2) * 0.08);
           ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr);
         }
         ctx.closePath();
         ctx.fill();
+
         ctx.restore();
       }
     }
@@ -907,13 +1079,11 @@
         ctx.shadowColor = d.color;
         ctx.shadowBlur = 16;
         ctx.fillStyle = d.color;
-        ctx.beginPath();
-        ctx.roundRect(-d.w / 2, -d.h / 2, d.w, d.h, 8);
+        roundRectPath(ctx, -d.w / 2, -d.h / 2, d.w, d.h, 8);
         ctx.fill();
 
-        // 앞부분
-        ctx.fillStyle = "#ffffff";
-        ctx.globalAlpha = 0.85;
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(255,255,255,0.92)";
         const dir = d.vx > 0 ? 1 : -1;
         ctx.beginPath();
         ctx.moveTo((d.w / 2) * dir, 0);
@@ -921,6 +1091,7 @@
         ctx.lineTo((d.w / 2 - 10) * dir, d.h / 2);
         ctx.closePath();
         ctx.fill();
+
         ctx.restore();
       }
     }
@@ -928,17 +1099,17 @@
     function drawChasers() {
       for (const c of state.chasers) {
         ctx.save();
-        const grad = ctx.createRadialGradient(c.x, c.y, 2, c.x, c.y, c.r + 10);
-        grad.addColorStop(0, "rgba(255,255,255,0.95)");
-        grad.addColorStop(0.45, "rgba(255,107,107,0.95)");
+        const grad = ctx.createRadialGradient(c.x, c.y, 2, c.x, c.y, c.r + 12);
+        grad.addColorStop(0, "rgba(255,255,255,1)");
+        grad.addColorStop(0.42, "rgba(255,107,107,0.96)");
         grad.addColorStop(1, "rgba(255,107,107,0)");
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(c.x, c.y, c.r + 10, 0, Math.PI * 2);
+        ctx.arc(c.x, c.y, c.r + 12, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.shadowColor = "#ff6b6b";
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = 18;
         ctx.fillStyle = "#ff6b6b";
         ctx.beginPath();
         ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
@@ -947,8 +1118,9 @@
         ctx.shadowBlur = 0;
         ctx.fillStyle = "#fff";
         ctx.beginPath();
-        ctx.arc(c.x - c.r * 0.2, c.y - c.r * 0.2, c.r * 0.26, 0, Math.PI * 2);
+        ctx.arc(c.x - c.r * 0.18, c.y - c.r * 0.18, c.r * 0.24, 0, Math.PI * 2);
         ctx.fill();
+
         ctx.restore();
       }
     }
@@ -957,7 +1129,7 @@
       for (const l of state.lasers) {
         ctx.save();
         if (l.warning) {
-          ctx.strokeStyle = "rgba(255,77,109,0.45)";
+          ctx.strokeStyle = "rgba(255,77,109,0.48)";
           ctx.lineWidth = 2;
           ctx.setLineDash([10, 8]);
           ctx.lineDashOffset = -performance.now() * 0.03;
@@ -974,7 +1146,7 @@
             ctx.stroke();
           }
         } else {
-          const glow = l.thickness * 2.5;
+          const glow = l.thickness * 2.8;
 
           if (l.vertical) {
             const grad = ctx.createLinearGradient(l.x - glow, 0, l.x + glow, 0);
@@ -986,7 +1158,7 @@
             ctx.fillStyle = grad;
             ctx.fillRect(l.x - glow, 0, glow * 2, window.innerHeight);
 
-            ctx.fillStyle = "rgba(255,77,109,0.95)";
+            ctx.fillStyle = "rgba(255,77,109,0.98)";
             ctx.fillRect(l.x - l.thickness / 2, 0, l.thickness, window.innerHeight);
           } else {
             const grad = ctx.createLinearGradient(0, l.y - glow, 0, l.y + glow);
@@ -998,7 +1170,7 @@
             ctx.fillStyle = grad;
             ctx.fillRect(0, l.y - glow, window.innerWidth, glow * 2);
 
-            ctx.fillStyle = "rgba(255,77,109,0.95)";
+            ctx.fillStyle = "rgba(255,77,109,0.98)";
             ctx.fillRect(0, l.y - l.thickness / 2, window.innerWidth, l.thickness);
           }
         }
@@ -1020,8 +1192,28 @@
       }
     }
 
+    function roundRectPath(ctx, x, y, w, h, r) {
+      const rr = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
     function render() {
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      ctx.save();
+      if (screenShake > 0) {
+        const amount = (screenShake / 10) * screenShakePower * 0.08;
+        const sx = (Math.random() * 2 - 1) * amount;
+        const sy = (Math.random() * 2 - 1) * amount;
+        ctx.translate(sx, sy);
+      }
+
       drawBackground();
       drawLasers();
       drawMeteors();
@@ -1029,89 +1221,90 @@
       drawChasers();
       drawParticles();
       if (player.alive) drawPlayer();
+
+      ctx.restore();
     }
 
-    // ====== 루프 ======
-    function loop(ts) {
-      const dt = ts - (state.lastTime || ts);
-      state.lastTime = ts;
+    // =========================
+    // 루프
+    // =========================
+    function loop(now) {
+      const dt = now - (state.lastTime || now);
+      state.lastTime = now;
 
-      update(dt);
+      update(dt, now);
       render();
 
       requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);
 
-    // ====== 게임 시작/재시작 ======
+    // =========================
+    // 시작 / 리셋
+    // =========================
     function resetGameState() {
-      state.spawnTimerA = 0;
-      state.spawnTimerB = 0;
-      state.spawnTimerC = 0;
+      state.spawnMeteorTimer = 0;
+      state.spawnDartTimer = 0;
+      state.spawnChaserTimer = 0;
       state.laserTimer = 0;
+      state.particles = [];
       state.meteors = [];
       state.darts = [];
       state.chasers = [];
       state.lasers = [];
-      state.particles = [];
       state.level = 1;
-      state.speedMultiplier = 1;
       state.difficulty = 1;
+      state.speedMultiplier = 1;
       elapsed = 0;
+      screenShake = 0;
+      screenShakePower = 0;
+
       timeText.textContent = "0.00s";
       speedText.textContent = "1.0x";
       hazardText.textContent = "LOW";
       levelText.textContent = "LEVEL 1";
-      flashEl.style.background = "rgba(255,77,109,0)";
-      hintText.style.opacity = "0.9";
+      hintText.style.opacity = "0.92";
       hintHidden = false;
+      flashEl.style.background = "rgba(255,77,109,0)";
       resetPlayer();
     }
 
     function startGame() {
+      unlockAudio();
       resetGameState();
       startTime = performance.now();
       gameRunning = true;
       gameOver = false;
-      player.alive = true;
       startOverlay.style.display = "none";
       gameOverOverlay.style.display = "none";
+      soundStart();
+      vibrate(20);
     }
 
-    startBtn.addEventListener("click", startGame);
-    restartBtn.addEventListener("click", startGame);
-    closeBtn.addEventListener("click", () => {
-      gameOverOverlay.style.display = "none";
-      startOverlay.style.display = "flex";
-    });
-
-    howBtn.addEventListener("click", () => {
+    function showHowTo() {
+      unlockAudio();
       alert(
 `[조작 팁]
-- 플레이어 가까이를 눌러 끌면 안정적으로 이동
-- 레이저는 '경고선'이 나온 뒤 발사됨
-- 초반엔 중앙 아래에서 짧게 움직이는 게 유리
-- 후반엔 모서리에 오래 머물면 체이서와 레이저에 갇히기 쉬움
-- 기록은 생존 시간으로 친구들과 비교하면 됨`
+- 플레이어를 직접 손가락으로 끌어서 움직이세요
+- 레이저는 경고선이 보인 후 발사됩니다
+- 초반에는 중앙 아래쪽에서 짧게 피하는 게 유리합니다
+- 후반에는 한쪽 구석에 오래 머물면 추적 구체/레이저에 갇히기 쉽습니다
+- 친구들과는 생존 시간 캡처로 바로 경쟁하면 됩니다`
       );
-    });
+    }
+
+    function closeResult() {
+      gameOverOverlay.style.display = "none";
+      startOverlay.style.display = "flex";
+    }
+
+    bindTap(startBtn, startGame);
+    bindTap(restartBtn, startGame);
+    bindTap(howBtn, showHowTo);
+    bindTap(closeBtn, closeResult);
 
     resetPlayer();
     render();
-
-    // roundRect 호환 보조
-    if (!CanvasRenderingContext2D.prototype.roundRect) {
-      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-        const radius = Math.min(r, w / 2, h / 2);
-        this.beginPath();
-        this.moveTo(x + radius, y);
-        this.arcTo(x + w, y, x + w, y + h, radius);
-        this.arcTo(x + w, y + h, x, y + h, radius);
-        this.arcTo(x, y + h, x, y, radius);
-        this.arcTo(x, y, x + w, y, radius);
-        this.closePath();
-      };
-    }
   </script>
 </body>
 </html>
